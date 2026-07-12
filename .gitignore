@@ -1,0 +1,5 @@
+.build/
+.swiftpm/
+.claude/
+.DS_Store
+LOCAL-NOTES.md
