@@ -7,7 +7,7 @@
     </td>
     <td valign="middle">
       <strong>Shrike</strong> is a small macOS command-line tool that shrinks JPEG and PNG images to a target width or height, preserving the aspect ratio and the original format.
-
+      <br /><br />
       A shrike is also a small songbird known for storing food on thorns and branches, a distinctive behavior that helps it save meals for later. Just don't ask me about what that <em>food</em> actually is. 😂
     </td>
   </tr>
