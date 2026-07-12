@@ -17,7 +17,7 @@
   <img src="docs/shrike-scrn.png" alt="Shrike CLI screenshot" width="900" />
 </p>
 
-![CI](https://github.com/carlosinho/shrike/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/carlosinho/shrike/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosinho/shrike/actions/workflows/ci.yml)
 
 ## Usage
 
