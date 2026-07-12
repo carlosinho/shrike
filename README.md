@@ -3,7 +3,7 @@
 <table>
   <tr>
     <td width="240" align="center" valign="top">
-      <img src="docs/Shrike.png" alt="Shrike logo" width="220" />
+      <img src="docs/Shrike.png" alt="Shrike logo" width="180" />
     </td>
     <td valign="middle">
       <strong>Shrike</strong> is a small macOS command-line tool that shrinks JPEG and PNG images to a target width or height, preserving the aspect ratio and the original format.
@@ -14,6 +14,8 @@
 <p align="center">
   <img src="docs/shrike-scrn.png" alt="Shrike CLI screenshot" width="900" />
 </p>
+
+![CI](https://github.com/carlosinho/shrike/actions/workflows/ci.yml/badge.svg)
 
 ## Usage
 
