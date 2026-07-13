@@ -88,6 +88,19 @@ shrike ~/Desktop/some-photo.jpg 800 -c
 
 Once installed, the project directory is no longer needed at runtime — the binary is standalone. It only matters again when you want to change the code: rebuild and re-copy (steps 1–2) to update the installed version.
 
+### Updating
+
+To update to the latest version, pull the newest code in the cloned project directory, rebuild, and re-copy the binary:
+
+```sh
+cd shrike        # wherever you cloned the repository
+git pull
+swift build -c release
+sudo cp .build/release/shrike /usr/local/bin/
+```
+
+(If you installed to a user-writable directory instead, copy there and skip `sudo`.) Check the result with `shrike --version`. If you deleted the project directory after installing, just clone and install again per steps 1–2.
+
 ### Running without installing
 
 From the project root you can always run the tool directly:
