@@ -1,6 +1,6 @@
 # Shrike architecture
 
-Developer documentation for the current implementation. The README covers usage, installation, and the feature roadmap; this file covers how the code works and why. Everything below describes what exists now — future ideas live only in the README's "Possible future features" section and are not repeated here.
+Developer documentation for the current implementation. The README covers usage and installation; ROADMAP.md holds the roadmap, tech debt, and open design questions; this file covers how the code works and why. Everything below describes what exists now — future ideas live only in ROADMAP.md and are not repeated here.
 
 ## System design philosophy
 
@@ -89,12 +89,12 @@ Intentional edge-case behavior worth knowing before changing it:
 
 - **Content sniffing over extension trust** (invariant 3) prevents encoding a file as something it isn't; malformed/hostile image parsing risk is delegated entirely to Apple's ImageIO, which is the same attack surface as Preview/Quick Look and receives OS security updates.
 - **No network, no subprocesses, no shell interpolation.** Paths are used as `URL(fileURLWithPath:)` arguments only; symlinks resolve however the OS resolves them (no special handling — overwriting a symlinked image replaces the *link target's* content via the swap).
-- **Privacy trade-off, deliberate:** EXIF metadata *including GPS* is preserved on resize. Right for "shrink my photo", wrong for "publish to the web" — a `--strip-metadata` flag is listed in the README as future work, not implemented.
+- **Privacy trade-off, deliberate:** EXIF metadata *including GPS* is preserved on resize. Right for "shrink my photo", wrong for "publish to the web" — a `--strip-metadata` flag is listed in ROADMAP.md as future work, not implemented.
 - Temp filenames embed a UUID, so they're not guessable/collidable in shared directories.
 
 ## Scalability constraints
 
-By design, not accident: one file per process, whole image in memory, no recursion into directories, no concurrency. The core is already shaped for a future batch mode (the CLI loop would call `ImageResizer.run` per file); what would *not* survive very large images (panoramas beyond a few hundred megapixels) is the full-size decode in step 5, which would need tiled or downsample-during-decode handling.
+By design, not accident: one file per process, whole image in memory, no recursion into directories, no concurrency. The core is already shaped for the batch mode listed in ROADMAP.md (the CLI loop would call `ImageResizer.run` per file); what would *not* survive very large images (panoramas beyond a few hundred megapixels) is the full-size decode in step 5, which would need tiled or downsample-during-decode handling.
 
 ## Testing and maintenance notes
 

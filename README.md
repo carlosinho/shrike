@@ -123,18 +123,9 @@ The test target is a plain executable with a minimal built-in harness, because t
 
 - One file per invocation — no globs or directories.
 - JPEG and PNG only.
-- JPEG quality is fixed at 0.85 (no `--quality` flag yet).
+- JPEG quality is fixed at 0.85.
 - Requires the file extension (`.jpg`/`.jpeg`/`.png`, any case) to match the actual image content.
 
-## Possible future features
+## Roadmap
 
-None of these are implemented; they're natural next steps on the current foundation, roughly in order of usefulness:
-
-- **Batch mode** — accept multiple paths or a directory (`shrike *.jpg 800 -c`), with a per-file summary and a nonzero exit if any file fails.
-- **`--quality <0–1>`** — control JPEG re-encode quality instead of the fixed 0.85.
-- **HEIC input** — ImageIO already decodes HEIC natively, so `shrike photo.heic 800` could work today; the main design question is whether the output stays HEIC or converts to JPEG.
-- **`-o <path>`** — explicit output path as an alternative to the automatic `-800w` copy naming.
-- **Fit-within-box mode** — a single `--max 1200` that constrains the longest edge, handy for mixed portrait/landscape batches.
-- **`--strip-metadata`** — drop EXIF/GPS instead of preserving it, for images headed to the public web.
-- **Shell completions** — swift-argument-parser can generate zsh/bash completion scripts (`shrike --generate-completion-script zsh`).
-- **WebP output** — would need a third-party encoder; ImageIO doesn't write WebP.
+Planned features and open design questions live in [ROADMAP.md](ROADMAP.md).
