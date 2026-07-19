@@ -111,6 +111,18 @@ From the project root you can always run the tool directly:
 swift run shrike photo.jpg 800
 ```
 
+## GUI app
+
+An optional drag-and-drop front-end for the same engine. Build it with:
+
+```sh
+scripts/make-app.sh
+```
+
+This produces `dist/Shrike.app` (ad-hoc signed, for local use) — launch it from there or copy it to `/Applications`. The window shows four preset tiles (800 / 1000 / 1200 / 1800 px by default; the gear button lets you set your own four sizes and switch to a darker theme, both remembered between launches): drop a JPEG or PNG on a tile to shrink it to that size, with a Width/Height toggle and a Copy mode checkbox below. The GUI links the same `ShrikeCore` engine as the CLI — it does not call the `shrike` binary — so everything behaves identically: same shrink-only rule, formats, atomic writes, and copy naming, with one deliberate difference: **Copy mode is on by default** in the GUI, so an accidental drop writes a `photo-800w.jpg` next to the original instead of overwriting it. Uncheck it to resize in place.
+
+The GUI is versioned independently of the CLI — it's a separate product with its own number, visible in the app's About panel (Shrike menu → About Shrike).
+
 ## Tests
 
 ```sh

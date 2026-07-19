@@ -6,7 +6,8 @@
 
 ## Roadmap
 
-### v0.1.0 — Proof of concept (released, tagged `v0.1.0`)
+### v0.1.0 — Proof of concept
+
 - [x] Resize to target width or height (`<path> <pixels> [--height]`) — dimension math is a pure static function (`ImageResizer.targetSize`), aspect ratio preserved with `.rounded()`, derived dimension clamped to min 1px
 - [x] Shrink-only rule — `targetSize` returns `nil` unless strictly smaller; equal size is a no-op, never a re-encode, and the no-op path never decodes pixels (cheap even on huge files)
 - [x] JPEG and PNG support with format preservation — format decided by content sniff (`CGImageSourceGetType`), and the extension must agree; anything else (HEIC, WebP, mismatched extension) is rejected before any write
@@ -21,10 +22,12 @@
 - [x] Test suite (`swift run shrike-tests`) — hand-rolled harness (CLT toolchain ships no XCTest/Swift Testing); covers dimension math, copy naming, in-place vs copy, no-upscale (byte-identical originals), orientation-6 down to pixel colors, EXIF preservation, PNG transparency, error paths; fixtures generated at runtime, not checked in
 - [x] CI — GitHub Actions on `macos-latest`: `swift build -c release` + `swift run shrike-tests` on pushes to `main` and PRs
 
+### v0.2.0
+
+- [x] GUI helper app/module — SwiftUI front-end (`shrike-gui` target) per the `shrike-ui.png` template, blue palette included: 2×2 grid of drop tiles (defaults 800/1000/1200/1800 px, user-configurable via the gear button and remembered in `UserDefaults`, as is a dark-mode switch — the GUI's only state), Width/Height toggle, Copy mode checkbox; `scripts/make-app.sh` wraps the binary in an ad-hoc-signed `dist/Shrike.app` (gitignored). Decisions made: links `ShrikeCore` directly (no shelling out to the CLI); SwiftPM target + bundle script (not an Xcode project) to keep the CLT-only toolchain; Copy mode defaults to ON in the GUI (safe drag-and-drop, diverges from CLI); GUI versioned independently of the CLI (`GUIVersion.current` in `Sources/shrike-gui/Version.swift` → Info.plist via the script). See "GUI front-end" in ARCHITECTURE.md.
+
 ### Backlog / Future
-- [ ] Brainstorm a design update
-  - How we could make an additional extension/standalone helper app for Shrike that would give it an UI on a Mac?
-  - The design should resemble the attached template (shrike-ui.png in project root).
+
 - [ ] `-s` - status - simply displays the current width and height of the image without doing anything to it
 - [ ] Fit-within-box mode — a single `--max 1200` constraining the longest edge - whether it's width or height
 - [ ] Batch mode — accept multiple paths or a directory (`shrike *.jpg 800 -c`), per-file summary, nonzero exit if any file fails. Core is already shaped for it: the CLI loop would call `ImageResizer.run` per file.
@@ -38,6 +41,7 @@
 ## Known Issues / Tech Debt
 
 - **Untested CLI target** — argument parsing, output text, and exit codes were only verified manually against the release binary (with `sips`); no automated tests for the `shrike` executable itself.
+- **Untested GUI target** — drop handling and layout of `shrike-gui` are verified manually only (same precedent as the CLI target); all resize decisions live in the tested core.
 - **Test coverage gaps** — `unsupportedFormat` (needs a HEIC fixture) and `writeFailed` (needs induced I/O failure) are not covered.
 - **CI blind spot** — GitHub's macOS runners include full Xcode, so CI would not catch an accidental XCTest import creeping back in; it builds fine there and breaks only on CLT-only machines.
 - **Hand-rolled test harness** — intentional, because the Command Line Tools toolchain ships neither XCTest nor Swift Testing. If the project ever standardizes on machines with full Xcode, convert back to a real framework; assertions map 1:1.
@@ -46,7 +50,7 @@
 - **Non-RGB sources converted to RGB** (grayscale JPEG comes out RGB via sRGB fallback) — accepted; visually identical, slightly larger.
 - **Bit depth normalized to 8 bits/channel** (16-bit PNG written back as 8-bit) — accepted for the shrinking use case.
 - **EXIF metadata including GPS is preserved** — deliberate privacy trade-off; right for "shrink my photo", wrong for publishing to the web. `--strip-metadata` (backlog) is the fix.
-- **Manual version bump** — the version string in `CommandConfiguration(version:)` (`Sources/shrike/Shrike.swift`) must be bumped in lockstep with release tags by hand (`v0.1.0` ↔ `"0.1.0"`).
+- **Manual version bumps** — both versions are bumped by hand, but each product now has a single source of truth (see "Testing and maintenance notes" in ARCHITECTURE.md): the CLI's in `CommandConfiguration(version:)` (`Sources/shrike/Shrike.swift`, lockstep with `v*` tags), the GUI's in `GUIVersion.current` (`Sources/shrike-gui/Version.swift`, propagated to the app bundle's Info.plist by `scripts/make-app.sh`). The two are independent and drift apart by design.
 - **One file per invocation, no globs/directories** — by design until batch mode lands.
 - **Requires extension to match content** — `.jpg`/`.jpeg`/`.png` only, any case; a correct image with the wrong extension is rejected.
 

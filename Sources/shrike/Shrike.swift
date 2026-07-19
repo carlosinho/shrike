@@ -17,7 +17,7 @@ struct Shrike: ParsableCommand {
             a new file next to it instead, named after the target size \
             (photo.jpg → photo-800w.jpg, or photo-600h.jpg with --height).
             """,
-        version: "0.1.0"
+        version: "0.2.0"
     )
 
     @Argument(help: "Path to the JPEG or PNG image.")

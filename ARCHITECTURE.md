@@ -7,9 +7,9 @@ Developer documentation for the current implementation. The README covers usage 
 Shrike is a single-purpose, single-file-per-invocation CLI. The guiding choices:
 
 - **Lean on the OS for image work.** All decoding, scaling, and encoding go through Apple's ImageIO/CoreGraphics. Shrike contains no codec code and has exactly one third-party dependency (`swift-argument-parser`, CLI parsing only). This is why the release binary is self-contained and why formats behave the way macOS behaves.
-- **Logic and CLI are separate targets.** `Sources/ShrikeCore` (library) holds every decision worth testing; `Sources/shrike` (executable) only parses arguments, calls `ImageResizer.run(_:)`, and formats output. The CLI target contains no image logic at all.
+- **Logic and front-ends are separate targets.** `Sources/ShrikeCore` (library) holds every decision worth testing; `Sources/shrike` (executable) only parses arguments, calls `ImageResizer.run(_:)`, and formats output. `Sources/shrike-gui` (executable) is a second thin front-end — a SwiftUI drop-target window over the same `ImageResizer.run(_:)`. Neither front-end contains any image logic.
 - **Pure functions where possible.** The two decisions most likely to have bugs — dimension math (`ImageResizer.targetSize`) and copy naming (`ImageResizer.copyURL`) — are pure static functions with no I/O, tested directly.
-- **No state.** There is no persistence, config file, cache, database, or environment variable. Every invocation is fully described by its arguments. (Sections on persistence, state transitions, and auth are therefore intentionally absent.)
+- **No state.** The core and the CLI have no persistence, config file, cache, database, or environment variable; every invocation is fully described by its arguments. The single exception lives in the GUI front-end: its four preset sizes are remembered in `UserDefaults` (see GUI front-end). (Sections on persistence, state transitions, and auth are otherwise intentionally absent.)
 
 ## Package layout
 
@@ -17,6 +17,7 @@ Shrike is a single-purpose, single-file-per-invocation CLI. The guiding choices:
 |---|---|---|
 | `ShrikeCore` | library | `ImageResizer.swift` — all types and logic |
 | `shrike` | executable | `Shrike.swift` — ArgumentParser command, output/exit-code mapping |
+| `shrike-gui` | executable | `ShrikeGUIApp.swift`, `ContentView.swift`, `DropTile.swift` — SwiftUI drop-target window (see GUI front-end) |
 | `shrike-tests` | executable | `main.swift` — test harness + all tests (see Testing) |
 
 Public API of `ShrikeCore`: `ResizeRequest` (input), `ImageResizer.run(_:)` (the pipeline), `ResizeOutcome` (`.resized` / `.noResizeNeeded`), `ShrikeError`, plus the value types `PixelSize`, `ResizeDimension`, `ImageFormat`.
@@ -56,6 +57,15 @@ Exit-code mapping lives in exactly two places:
 - `run()` catches `ShrikeError`, prints `shrike: <description>` to **stderr**, and throws `ExitCode(2)`. All success paths (including no-op) print to stdout and exit **0**.
 
 Anything that changes these mappings is a breaking change for scripts.
+
+## GUI front-end
+
+`shrike-gui` is a SwiftUI window (design per `shrike-ui.png`, including its fixed blue palette — `Theme.swift`): a 2×2 grid of drop tiles (800/1000/1200/1800 px by default), a Width/Height segmented control, and a Copy mode checkbox. Dropping files on a tile builds one `ResizeRequest` per file and runs `ImageResizer.run(_:)` sequentially off the main thread — it links the core directly and never invokes the `shrike` binary. The tile shows the outcome (`4032×3024 → 800×600`, the no-op message, or the `ShrikeError` description). Decisions worth knowing:
+
+- **Copy mode defaults to ON — a deliberate divergence from the CLI.** Drag-and-drop is easy to trigger by accident, so the safe default is writing the `-800w` copy; unchecking resizes in place, exactly like the CLI default. Everything else (shrink-only, format rules, atomic writes, copy naming) is identical because it's the same core call.
+- **Presets are user-configurable** via the gear button, persisted with `@AppStorage` (`UserDefaults` keys `presetSize1`–`presetSize4`, clamped to ≥ 1), alongside a dark-mode switch (`darkMode`) that swaps the blue for a classic dark-grey appearance. This is the project's only state — a deliberate exception to the no-state philosophy, confined to the GUI target.
+- **Packaging is a script, not an Xcode project**, to preserve the CLT-only toolchain: SwiftUI/AppKit ship in the CLT's macOS SDK, so `swift build` compiles the target, and `scripts/make-app.sh` wraps the release binary in an ad-hoc-signed `dist/Shrike.app` (Info.plist + icns generated from `docs/Shrike.png` via `sips`/`iconutil`; `dist/` is gitignored). The title-bar logo is an SPM resource (`Sources/shrike-gui/Resources/Shrike.png`, a copy of the docs logo) loaded via `Bundle.module`; the script ships the generated `Shrike_shrike-gui.bundle` in `Contents/Resources` so the bundled app finds it too. Ad-hoc signing is fine for a locally built app; distributing the bundle to other machines would need Developer ID signing + notarization.
+- **Unbundled runs work but are rough**: `swift run shrike-gui` starts as a background process, so the app promotes itself to a regular activation policy on appear; the bundle is the supported way to run it.
 
 ## Performance decisions
 
@@ -101,7 +111,9 @@ By design, not accident: one file per process, whole image in memory, no recursi
 - **`swift run shrike-tests`** runs everything. The harness is hand-rolled (~50 lines: `expect`/`expectEqual`/`require` + a `test` runner with per-test temp directories) because the Xcode **Command Line Tools toolchain ships neither XCTest nor Swift Testing** — both come only with full Xcode. If this project ever standardizes on machines with Xcode, the target can be converted back to a real test framework; the assertions map 1:1.
 - **Fixtures are generated, not checked in**: a blue image with a red top-left quadrant (rotation becomes visible in pixel samples) and an optional transparent left half (alpha survival). Fixture EXIF (orientation, `DateTimeOriginal`) is written through `CGImageDestination` properties.
 - **What's covered**: dimension math, copy naming, in-place vs copy writes, the no-upscale rule (including byte-identical originals), orientation-6 round trip down to pixel colors, EXIF preservation + pixel-dimension update, PNG transparency, and the `fileNotFound` / `extensionMismatch` / non-image error paths.
-- **What's not covered**: the `shrike` executable target itself (argument parsing, output text, exit codes were verified manually against the release binary — with `sips` checking sizes/formats/ICC profiles — but have no automated tests), `unsupportedFormat` (needs a HEIC fixture), and `writeFailed` (needs induced I/O failure).
+- **What's not covered**: the `shrike` executable target itself (argument parsing, output text, exit codes were verified manually against the release binary — with `sips` checking sizes/formats/ICC profiles — but have no automated tests), the `shrike-gui` target (drop handling and layout verified manually; all resize decisions live in the tested core), `unsupportedFormat` (needs a HEIC fixture), and `writeFailed` (needs induced I/O failure).
 - **CI** (`.github/workflows/ci.yml`) runs `swift build -c release` + `swift run shrike-tests` on `macos-latest` for pushes to `main` and PRs. GitHub's macOS runners include full Xcode, so CI would not catch an accidental XCTest import creeping back in — it builds fine there and breaks only on CLT-only machines.
-- **Version string** lives in `CommandConfiguration(version:)` in `Sources/shrike/Shrike.swift` and must be bumped in lockstep with release tags (`v0.1.0` ↔ `"0.1.0"`). `Package.resolved` is committed to pin the argument-parser version.
+- **The CLI and the GUI are versioned independently** — they're separate products on separate schedules, and their numbers are unrelated. Each has exactly one source of truth:
+  - **CLI**: `CommandConfiguration(version:)` in `Sources/shrike/Shrike.swift` (surfaced by `shrike --version`), bumped by hand in lockstep with the `v*` release tags (`v0.1.0` ↔ `"0.1.0"`), as before.
+  - **GUI**: `GUIVersion.current` in `Sources/shrike-gui/Version.swift`. `scripts/make-app.sh` extracts it into the bundle's `CFBundleShortVersionString` (which is what the About panel and Finder show), so the code and the Info.plist can't drift; the script fails loudly if the constant can't be parsed. Not displayed anywhere in the app's own UI, deliberately. If GUI releases are ever tagged, use a distinct scheme (e.g. `gui-v0.2.0`) so they don't collide with CLI tags. `Package.resolved` is committed to pin the argument-parser version.
 - **Adding a format** touches three places in `ImageResizer.swift`: `ImageFormat` (case + `utTypeIdentifier` + `validExtensions` + `displayName`), `detectFormat`'s UTI switch, and — for formats with alpha or lossy encoding — the `alphaInfo`/quality decisions in `scale` and `outputProperties`.

@@ -1,5 +1,6 @@
 .build/
 .swiftpm/
+dist/
 .claude/
 .DS_Store
 LOCAL-NOTES.md

@@ -16,6 +16,12 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
+        // SwiftUI front-end; scripts/make-app.sh wraps the binary in Shrike.app.
+        .executableTarget(
+            name: "shrike-gui",
+            dependencies: ["ShrikeCore"],
+            resources: [.copy("Resources/Shrike.png")]
+        ),
         // The Command Line Tools toolchain ships no XCTest/Testing module, so
         // tests are a plain executable: `swift run shrike-tests`.
         .executableTarget(name: "shrike-tests", dependencies: ["ShrikeCore"]),
