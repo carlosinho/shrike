@@ -26,9 +26,13 @@
 
 - [x] GUI helper app/module — SwiftUI front-end (`shrike-gui` target) per the `shrike-ui.png` template, blue palette included: 2×2 grid of drop tiles (defaults 800/1000/1200/1800 px, user-configurable via the gear button and remembered in `UserDefaults`, as is a dark-mode switch — the GUI's only state), Width/Height toggle, Copy mode checkbox; `scripts/make-app.sh` wraps the binary in an ad-hoc-signed `dist/Shrike.app` (gitignored). Decisions made: links `ShrikeCore` directly (no shelling out to the CLI); SwiftPM target + bundle script (not an Xcode project) to keep the CLT-only toolchain; Copy mode defaults to ON in the GUI (safe drag-and-drop, diverges from CLI); GUI versioned independently of the CLI (`GUIVersion.current` in `Sources/shrike-gui/Version.swift` → Info.plist via the script). See "GUI front-end" in ARCHITECTURE.md.
 
-### Backlog / Future
+### v0.3.0
 
 - [ ] `-s` - status - simply displays the current width and height of the image without doing anything to it
+  - Add a new "Status" box in the GUI app too. Put it as a full width box under the 4 boxes currently there. When an image is dragged onto it, the current size would be displayed.
+
+### Backlog / Future
+
 - [ ] Fit-within-box mode — a single `--max 1200` constraining the longest edge - whether it's width or height
 - [ ] Batch mode — accept multiple paths or a directory (`shrike *.jpg 800 -c`), per-file summary, nonzero exit if any file fails. Core is already shaped for it: the CLI loop would call `ImageResizer.run` per file.
 - [ ] `--quality <0–1>` — control JPEG re-encode quality instead of the fixed 0.85
