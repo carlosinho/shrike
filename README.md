@@ -23,14 +23,14 @@
   <img
     src="docs/shrike-desktop.png"
     alt="Shrike desktop app"
-    width="400"
+    width="300"
     align="right"
     hspace="30"
   />
   V0.2.0 now with a sidekick desktop app. Comes with 4 customizable drop zones for resizing images quickly. 
 </p>
 
-<br clear="left" />
+<br clear="right" />
 
 [![CI](https://github.com/carlosinho/shrike/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosinho/shrike/actions/workflows/ci.yml)
 
