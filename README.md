@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <td width="220" align="center" valign="top">
+    <td width="230" align="center" valign="top">
       <img src="docs/Shrike.png" alt="Shrike logo" width="180" />
     </td>
     <td valign="middle">
@@ -24,9 +24,9 @@
     width="300"
     align="right"
   />
-  ✨ V0.2.0 now with a sidekick desktop app. Comes with 4 customizable drop zones for resizing images quickly. 
+  ✨ V0.2.0 now with a sidekick desktop app. 
   <br /><br />
-  👉👉👉
+  It comes with 4 customizable drop zones for resizing images quickly. 👉👉👉
 </p>
 
 [![CI](https://github.com/carlosinho/shrike/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosinho/shrike/actions/workflows/ci.yml)
