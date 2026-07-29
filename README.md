@@ -1,21 +1,36 @@
 <h1 align="center">Shrike</h1>
 
-<table>
-  <tr>
-    <td width="240" align="center" valign="top">
-      <img src="docs/Shrike.png" alt="Shrike logo" width="180" />
-    </td>
-    <td valign="middle">
-      <strong>Shrike</strong> is a small macOS command-line tool that shrinks JPEG and PNG images to a target width or height, preserving the aspect ratio and the original format.
-      <br /><br />
-      A shrike is also a small songbird known for storing food on thorns and branches, a distinctive behavior that helps it save meals for later. Just don't ask me about what that <em>food</em> actually is. 😂
-    </td>
-  </tr>
-</table>
+<p>
+  <img
+    src="docs/Shrike.png"
+    alt="Shrike logo"
+    width="180"
+    align="left"
+    hspace="30"
+  />
+  <strong>Shrike</strong> is a small macOS command-line tool that shrinks JPEG and PNG images to a target width or height, preserving the aspect ratio and the original format.
+  <br /><br />
+  A <em>shrike</em> is also a small songbird known for storing food on thorns and branches, a distinctive behavior that helps it save meals for later. Just don't ask me about what that <em>food</em> actually is. 😂
+</p>
+
+<br clear="left" />
 
 <p align="center">
   <img src="docs/shrike-scrn.png" alt="Shrike CLI screenshot" width="900" />
 </p>
+
+<p>
+  <img
+    src="docs/shrike-desktop.png"
+    alt="Shrike desktop app"
+    width="400"
+    align="right"
+    hspace="30"
+  />
+  V0.2.0 now with a sidekick desktop app. Comes with 4 customizable drop zones for resizing images quickly. 
+</p>
+
+<br clear="left" />
 
 [![CI](https://github.com/carlosinho/shrike/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosinho/shrike/actions/workflows/ci.yml)
 
